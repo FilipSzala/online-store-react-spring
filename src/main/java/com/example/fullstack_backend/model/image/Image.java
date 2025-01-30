@@ -1,12 +1,10 @@
 package com.example.fullstack_backend.model.image;
-
 import com.example.fullstack_backend.model.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.sql.Blob;
 
 @Getter
@@ -27,7 +25,7 @@ public class Image {
     @JoinColumn(name = "product_id",
                 referencedColumnName = "id",
                 foreignKey = @ForeignKey (
-                        name = "image_product_id"
+                        name = "image_product_fk"
                 ))
     private Product product;
 }

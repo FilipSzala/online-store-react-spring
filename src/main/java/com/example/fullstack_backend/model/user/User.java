@@ -1,6 +1,6 @@
 package com.example.fullstack_backend.model.user;
 
-import com.example.fullstack_backend.model.Cart;
+import com.example.fullstack_backend.model.cart.Cart;
 import com.example.fullstack_backend.model.role.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,17 +8,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.query.Order;
+import com.example.fullstack_backend.model.order.Order;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 
 public class User{
     @Id
@@ -58,5 +55,6 @@ public class User{
             ))
     private Collection<Role> roles = new HashSet<>();
 
-
+    public User() {
+    }
 }
