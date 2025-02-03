@@ -1,11 +1,9 @@
 package com.example.fullstack_backend.model.order;
 
-import com.example.fullstack_backend.model.OrderItem;
+import com.example.fullstack_backend.model.order_item.OrderItem;
 import com.example.fullstack_backend.model.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;

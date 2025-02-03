@@ -1,5 +1,5 @@
 package com.example.fullstack_backend.model.product;
-import com.example.fullstack_backend.model.OrderItem;
+import com.example.fullstack_backend.model.order_item.OrderItem;
 import com.example.fullstack_backend.model.category.Category;
 import com.example.fullstack_backend.model.image.Image;
 import jakarta.persistence.*;
@@ -25,7 +25,7 @@ public class Product {
     private BigDecimal price;
     private int inventory;
     private String description;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     @JoinColumn(
             name="category_id",
             referencedColumnName = "id",
@@ -35,4 +35,7 @@ public class Product {
     private List<Image> images;
     @OneToMany (mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<OrderItem> orderItems = new HashSet<>();
+
+    public Product(String name, String brand, BigDecimal price, int inventory, String description, Category category) {
+    }
 }

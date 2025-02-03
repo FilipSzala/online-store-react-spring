@@ -1,30 +1,104 @@
 package com.example.fullstack_backend.model.product;
 
+import com.example.fullstack_backend.model.cart.Cart;
+import com.example.fullstack_backend.model.cart_item.CartItem;
+import com.example.fullstack_backend.model.cart_item.CartItemRepository;
+import com.example.fullstack_backend.model.category.Category;
+import com.example.fullstack_backend.model.category.CategoryRepository;
+import com.example.fullstack_backend.model.order_item.OrderItem;
+import com.example.fullstack_backend.model.order_item.OrderItemRepository;
+import com.example.fullstack_backend.model.product.dtoRequest.AddProductRequest;
+import com.example.fullstack_backend.model.product.dtoRequest.UpdateProductRequest;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 
 public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final CartItemRepository cartItemRepository;
+    private final OrderItemRepository orderItemRepository;
+    public boolean productExists(String name, String brand) {
+        return productRepository.existsByNameAndBrand(name, brand);
+    }
     @Override
-    public Product addProduct(Product product) {
-        return productRepository.save(product);
+    public Product addProduct(AddProductRequest request) {
+        if (productExists(request.getName(), request.getBrand())) {
+            throw new EntityExistsException(request.getName() + " already exists!");
+        }
+        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
+                .orElseGet(() -> {
+                    Category newCategory = new Category(request.getCategory().getName());
+                    return categoryRepository.save(newCategory);
+                });
+        request.setCategory(category);
+        return productRepository.save(createProduct(request));
+    }
+
+
+
+    private Product createProduct(AddProductRequest request) {
+        return new Product(
+                request.getName(),
+                request.getBrand(),
+                request.getPrice(),
+                request.getInventory(),
+                request.getDescription(),
+                request.getCategory()
+        );
     }
 
     @Override
-    public Product updateProduct(Product product, Long productId) {
-        return null;
+    public Product updateProduct(UpdateProductRequest request, Long productId) {
+        return productRepository.findById(productId)
+                .map(existingProduct -> updateExistingProduct(existingProduct, request))
+                .map(productRepository::save).orElseThrow(()->new EntityNotFoundException("Product not found"));
+    }
+
+    private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request){
+        existingProduct.setName(request.getName());
+        existingProduct.setBrand(request.getBrand());
+        existingProduct.setPrice(request.getPrice());
+        existingProduct.setInventory(request.getInventory());
+        existingProduct.setDescription(request.getDescription());
+        //Todo:.
+        Category category = categoryRepository.findByName(request.getCategory().getName());
+        existingProduct.setCategory(category);
+        return existingProduct;
     }
 
     @Override
     public void deleteProductById(Long productId) {
-
+        productRepository.findById(productId)
+                .ifPresentOrElse(product -> {
+                    List<CartItem> cartItems = cartItemRepository.findByProductId(productId);
+                    cartItems.forEach(cartItem ->{
+                        Cart cart = cartItem.getCart();
+                        cart.removeItem(cartItem);
+                        cartItemRepository.delete(cartItem);
+                    });
+                    List<OrderItem> orderItems = orderItemRepository.findByProductId(productId);
+                    orderItems.forEach(orderItem-> {
+                        orderItem.setProduct(null);
+                        orderItemRepository.save(orderItem);
+                    });
+                    Optional.ofNullable(product.getCategory())
+                            .ifPresent(category -> category.getProducts().remove(product));
+                    product.setCategory(null);
+                    productRepository.deleteById(product.getId());
+                }, ()->{
+                    throw new EntityNotFoundException("Product not found!");
+                });
     }
+
     @Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -33,7 +107,7 @@ public class ProductService implements IProductService {
     @Override
     public Product getProductById(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(()-> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
 
     @Override
@@ -43,7 +117,7 @@ public class ProductService implements IProductService {
 
     @Override
     public List<Product> getProductsByCategoryAndBrand(String categoryName, String brand) {
-        return productRepository.findByCategory_NameAndBrand(categoryName,brand);
+        return productRepository.findByCategory_NameAndBrand(categoryName, brand);
     }
 
     @Override

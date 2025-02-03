@@ -20,7 +20,7 @@ public class Cart {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
     private BigDecimal totalAmount;
-    @OneToOne
+    @OneToOne ()
     @JoinColumn(name="user_id",
                 referencedColumnName = "id")
     private User user;
@@ -32,5 +32,14 @@ public class Cart {
     private Set<CartItem> items = new HashSet<>();
 
     public Cart() {
+    }
+
+    public void removeItem(CartItem cartItem) {
+       this.items.remove(cartItem);
+       cartItem.setCart(null);
+       updateTotalAmount();
+    }
+
+    private void updateTotalAmount() {
     }
 }

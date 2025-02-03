@@ -1,10 +1,13 @@
 package com.example.fullstack_backend.model.product;
 
+import com.example.fullstack_backend.model.product.dtoRequest.AddProductRequest;
+import com.example.fullstack_backend.model.product.dtoRequest.UpdateProductRequest;
+
 import java.util.List;
 
 public interface IProductService {
-    Product addProduct(Product product);
-    Product updateProduct(Product product, Long productId);
+    Product addProduct(AddProductRequest product);
+    Product updateProduct(UpdateProductRequest product, Long productId);
     Product getProductById (Long productId);
     void deleteProductById(Long productId);
 

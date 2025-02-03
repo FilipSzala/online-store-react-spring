@@ -1,4 +1,4 @@
-package com.example.fullstack_backend.model;
+package com.example.fullstack_backend.model.order_item;
 
 import com.example.fullstack_backend.model.order.Order;
 import com.example.fullstack_backend.model.product.Product;

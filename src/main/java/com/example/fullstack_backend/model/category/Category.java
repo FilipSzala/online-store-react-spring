@@ -20,7 +20,9 @@ public class Category {
     @OneToMany(
             mappedBy = "category")
     private List<Product> products;
-    private Category(String name){
+    public Category(String name){
         this.name = name;
     }
+
+
 }
