@@ -1,4 +1,4 @@
-package com.example.fullstack_backend.model.image.dtoRequest;
+package com.example.fullstack_backend.model.image.dtoResponse;
 
 import lombok.Data;
 

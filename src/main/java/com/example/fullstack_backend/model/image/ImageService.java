@@ -1,6 +1,6 @@
 package com.example.fullstack_backend.model.image;
 
-import com.example.fullstack_backend.model.image.dtoRequest.ImageDto;
+import com.example.fullstack_backend.model.image.dtoResponse.ImageDto;
 import com.example.fullstack_backend.model.product.IProductService;
 import com.example.fullstack_backend.model.product.Product;
 import jakarta.persistence.EntityNotFoundException;
