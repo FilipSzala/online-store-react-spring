@@ -3,6 +3,7 @@ package com.example.fullstack_backend.model.image;
 import com.example.fullstack_backend.model.image.dtoResponse.ImageDto;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.util.List;
 
 public interface IImageService {
