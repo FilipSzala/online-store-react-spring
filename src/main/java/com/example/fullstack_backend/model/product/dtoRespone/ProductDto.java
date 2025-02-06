@@ -2,16 +2,18 @@ package com.example.fullstack_backend.model.product.dtoRespone;
 
 import com.example.fullstack_backend.model.category.Category;
 import com.example.fullstack_backend.model.image.dtoResponse.ImageDto;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+
 public class ProductDto {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String brand;

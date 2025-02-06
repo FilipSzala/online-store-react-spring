@@ -5,13 +5,18 @@ import com.example.fullstack_backend.model.cart_item.CartItem;
 import com.example.fullstack_backend.model.cart_item.CartItemRepository;
 import com.example.fullstack_backend.model.category.Category;
 import com.example.fullstack_backend.model.category.CategoryRepository;
+import com.example.fullstack_backend.model.image.Image;
+import com.example.fullstack_backend.model.image.ImageRepository;
+import com.example.fullstack_backend.model.image.dtoResponse.ImageDto;
 import com.example.fullstack_backend.model.order_item.OrderItem;
 import com.example.fullstack_backend.model.order_item.OrderItemRepository;
 import com.example.fullstack_backend.model.product.dtoRequest.AddProductRequest;
 import com.example.fullstack_backend.model.product.dtoRequest.UpdateProductRequest;
+import com.example.fullstack_backend.model.product.dtoRespone.ProductDto;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +31,9 @@ public class ProductService implements IProductService {
     private final CategoryRepository categoryRepository;
     private final CartItemRepository cartItemRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ModelMapper modelMapper;
+    private final ImageRepository imageRepository;
+
     public boolean productExists(String name, String brand) {
         return productRepository.existsByNameAndBrand(name, brand);
     }
@@ -133,5 +141,20 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> getProductsByBrand(String brand) {
         return productRepository.findByBrand(brand);
+    }
+
+    @Override
+    public List <ProductDto> getCovertedProducts(List<Product> products){
+        return products.stream().map(this::convertToDto).toList();
+    }
+    @Override
+    public ProductDto convertToDto (Product product){
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        List<Image> images = imageRepository.findByProductId(product.getId());
+        List<ImageDto> imageDtos = images.stream()
+                .map((image) -> modelMapper.map(image, ImageDto.class))
+                .toList();
+        productDto.setImages(imageDtos);
+        return productDto;
     }
 }

@@ -25,7 +25,7 @@ import java.util.List;
 public class ImageController {
     private final IImageService imageService;
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<ApiResponse> saveImages (@RequestParam Long productId, @RequestParam List <MultipartFile> files) {
         try {
             List<ImageDto> imageDto = imageService.saveImages(productId, files);

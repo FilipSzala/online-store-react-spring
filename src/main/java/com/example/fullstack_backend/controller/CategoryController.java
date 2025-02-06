@@ -5,7 +5,6 @@ import com.example.fullstack_backend.model.category.ICategoryService;
 import com.example.fullstack_backend.model.product.dtoRespone.ApiResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +33,8 @@ public class CategoryController {
     @PostMapping("")
     public ResponseEntity<ApiResponse> addCategory(@RequestBody Category category) {
         try {
-            Category theCategory = categoryService.addCategory(category);
-            return ResponseEntity.ok(new ApiResponse("Success", theCategory));
+            Category savedCategory = categoryService.addCategory(category);
+            return ResponseEntity.ok(new ApiResponse("Success", savedCategory));
         } catch (EntityExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse("Error :", e.getMessage()));
         }
@@ -43,8 +42,8 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long id){
         try {
-            Category theCategory = categoryService.findCategoryById(id);
-            return ResponseEntity.ok(new ApiResponse("Found", theCategory));
+            Category category = categoryService.findCategoryById(id);
+            return ResponseEntity.ok(new ApiResponse("Found", category));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Error :", e.getMessage()));
         }
@@ -72,8 +71,8 @@ public class CategoryController {
     @GetMapping("/{name}/")
     public ResponseEntity<ApiResponse> getCategoryByName (@PathVariable String name){
         try {
-            Category theCategory = categoryService.findCategoryByName(name);
-            return ResponseEntity.ok(new ApiResponse("Found", theCategory));
+            Category category = categoryService.findCategoryByName(name);
+            return ResponseEntity.ok(new ApiResponse("Found", category));
         } catch (EntityNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Error :", e.getMessage()));
         }
