@@ -1,11 +1,9 @@
 package com.example.fullstack_backend.model.cart;
 
-import com.example.fullstack_backend.model.cart_item.CartItem;
+import com.example.fullstack_backend.model.cart_item.Item;
 import com.example.fullstack_backend.model.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -29,17 +27,20 @@ public class Cart {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private Set<CartItem> items = new HashSet<>();
+    private Set<Item> items = new HashSet<>();
 
     public Cart() {
     }
 
-    public void removeItem(CartItem cartItem) {
-       this.items.remove(cartItem);
-       cartItem.setCart(null);
+    public void removeItem(Item item) {
+       this.items.remove(item);
+       item.setCart(null);
        updateTotalAmount();
     }
 
     private void updateTotalAmount() {
+    }
+
+    public void addItem(Item item) {
     }
 }

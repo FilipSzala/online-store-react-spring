@@ -1,14 +1,12 @@
 package com.example.fullstack_backend.model.user;
 
 import com.example.fullstack_backend.model.cart.Cart;
+import com.example.fullstack_backend.model.order.Order;
 import com.example.fullstack_backend.model.role.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
-import com.example.fullstack_backend.model.order.Order;
 
 import java.util.Collection;
 import java.util.HashSet;

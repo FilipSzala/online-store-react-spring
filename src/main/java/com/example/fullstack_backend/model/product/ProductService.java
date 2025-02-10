@@ -1,8 +1,8 @@
 package com.example.fullstack_backend.model.product;
 
 import com.example.fullstack_backend.model.cart.Cart;
-import com.example.fullstack_backend.model.cart_item.CartItem;
-import com.example.fullstack_backend.model.cart_item.CartItemRepository;
+import com.example.fullstack_backend.model.cart_item.Item;
+import com.example.fullstack_backend.model.cart_item.ItemRepository;
 import com.example.fullstack_backend.model.category.Category;
 import com.example.fullstack_backend.model.category.CategoryRepository;
 import com.example.fullstack_backend.model.image.Image;
@@ -29,7 +29,7 @@ public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final CartItemRepository cartItemRepository;
+    private final ItemRepository itemRepository;
     private final OrderItemRepository orderItemRepository;
     private final ModelMapper modelMapper;
     private final ImageRepository imageRepository;
@@ -87,11 +87,11 @@ public class ProductService implements IProductService {
     public void deleteProductById(Long productId) {
         productRepository.findById(productId)
                 .ifPresentOrElse(product -> {
-                    List<CartItem> cartItems = cartItemRepository.findByProductId(productId);
-                    cartItems.forEach(cartItem ->{
+                    List<Item> items = itemRepository.findByProductId(productId);
+                    items.forEach(cartItem ->{
                         Cart cart = cartItem.getCart();
                         cart.removeItem(cartItem);
-                        cartItemRepository.delete(cartItem);
+                        itemRepository.delete(cartItem);
                     });
                     List<OrderItem> orderItems = orderItemRepository.findByProductId(productId);
                     orderItems.forEach(orderItem-> {
