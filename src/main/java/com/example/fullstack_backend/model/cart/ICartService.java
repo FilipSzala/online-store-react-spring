@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 public interface ICartService {
     Cart getCart(Long cartId);
     Cart getCartByUserId(Long userId);
-    void clearCart(Long cartId);
+    void deleteCart(Long cartId);
     Cart initializeNewCartForUser(User user);
     BigDecimal getTotalPrice(Long cartId);
 }

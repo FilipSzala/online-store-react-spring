@@ -39,8 +39,16 @@ public class Cart {
     }
 
     private void updateTotalAmount() {
+        this.totalAmount = items.stream().map(item -> item.getTotalPrice()).reduce(BigDecimal.ZERO,BigDecimal::add);
     }
 
     public void addItem(Item item) {
+        this.items.add(item);
+        updateTotalAmount();
+    }
+
+    public void clearItems() {
+        this.items.clear();
+        updateTotalAmount();
     }
 }

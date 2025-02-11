@@ -9,6 +9,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class ItemService implements IItemService {
@@ -16,48 +18,52 @@ public class ItemService implements IItemService {
     private final ICartService cartService;
     private final IProductService productService;
     private final CartRepository cartRepository;
+
     @Override
     public void addItemToCart(Long cartId, Long productId, int quantity) {
         Cart cart = cartService.getCart(cartId);
         Product product = productService.getProductById(productId);
-        Item item = cart.getItems()
-                .stream()
-                .filter(cartItem ->cartItem.getProduct().getId().equals(productId))
-                .findFirst().orElse(new Item());
-        if (item.getId()==null){
+        Item item = cart.getItems().stream().filter(cartItem -> cartItem.getProduct().getId().equals(productId)).findFirst().orElse(new Item());
+        if (item.getId() == null) {
             item.setCart(cart);
             item.setProduct(product);
             item.setQuantity(quantity);
             item.setUnitPrice(product.getPrice());
-        }
-        else {
+        } else {
             item.setQuantity(item.getQuantity() + quantity);
         }
         item.setTotalPrice();
         cart.addItem(item);
         itemRepository.save(item);
+        cartRepository.save(cart);
     }
 
     @Override
-    public void removeItemFromCart(Long cartId, Long productId) {
+    public void removeItemFromCart(Long cartId, Long itemId) {
         Cart cart = cartService.getCart(cartId);
-        Item itemToRemove = getItemByCartIdAndProductId(cartId, productId);
+        Item itemToRemove = getItemByCartIdAndProductId(cartId, itemId);
         cart.removeItem(itemToRemove);
         cartRepository.save(cart);
     }
 
     @Override
     public void updateItemQuantity(Long cartId, Long productId, int quantity) {
+        Cart cart = cartService.getCart(cartId);
+        cart.getItems().stream().filter(item -> item.getProduct().getId().equals(productId)).findFirst().ifPresent(item -> {
+            item.setQuantity(quantity);
+            item.setUnitPrice(item.getProduct().getPrice());
+            item.setTotalPrice();
+        });
+        BigDecimal totalAmount = cart.getItems().stream().map(Item::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        cart.setTotalAmount(totalAmount);
+        cartRepository.save(cart);
 
     }
 
     @Override
     public Item getItemByCartIdAndProductId(Long cartId, Long productId) {
         Cart cart = cartService.getCart(cartId);
-        return cart.getItems()
-                .stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst()
-                .orElseThrow(()->new EntityNotFoundException("Cart not found!"));
+        return cart.getItems().stream().filter(item -> item.getProduct().getId().equals(productId)).findFirst().orElseThrow(() -> new EntityNotFoundException("Cart not found!"));
     }
 }

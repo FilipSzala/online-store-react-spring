@@ -20,7 +20,7 @@ public class Item {
     private int quantity;
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
-    @ManyToOne (cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn (name = "product_id",
                 referencedColumnName = "",
                 foreignKey = @ForeignKey(

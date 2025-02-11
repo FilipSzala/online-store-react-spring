@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByProductId(Long productId);
+
+    void deleteAllByCartId(Long cartId);
 }
