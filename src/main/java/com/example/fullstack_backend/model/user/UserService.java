@@ -1,5 +1,11 @@
 package com.example.fullstack_backend.model.user;
 
+import com.example.fullstack_backend.model.cart.Cart;
+import com.example.fullstack_backend.model.cart.dtoResponse.CartDto;
+import com.example.fullstack_backend.model.cart.CartRepository;
+import com.example.fullstack_backend.model.order.Order;
+import com.example.fullstack_backend.model.order.OrderRepository;
+import com.example.fullstack_backend.model.order.dtoResponse.OrderDto;
 import com.example.fullstack_backend.model.user.dtoUserRequest.AddUserRequest;
 import com.example.fullstack_backend.model.user.dtoUserRequest.UpdateUserRequest;
 import com.example.fullstack_backend.model.user.dtoUserResponse.UserResponseDto;
@@ -11,12 +17,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
 
 
     private static User createUser(AddUserRequest request) {
@@ -69,6 +78,12 @@ public class UserService implements IUserService {
     @Override
     public UserResponseDto convertToDto(User user){
         UserResponseDto userDto = modelMapper.map(user, UserResponseDto.class);
+        List <Order> orders = orderRepository.findByUserId(user.getId());
+        List <OrderDto> ordersDto = orders.stream().map((element) -> modelMapper.map(element, OrderDto.class)).collect(Collectors.toList());
+        Cart cart = cartRepository.findByUserId(user.getId());
+        CartDto cartDto = modelMapper.map(cart, CartDto.class);
+        userDto.setOrders(ordersDto);
+        userDto.setCart(cartDto);
         return userDto;
     }
 }
