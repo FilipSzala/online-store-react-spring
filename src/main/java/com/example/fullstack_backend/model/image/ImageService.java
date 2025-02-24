@@ -5,6 +5,7 @@ import com.example.fullstack_backend.model.product.IProductService;
 import com.example.fullstack_backend.model.product.Product;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -76,4 +77,45 @@ public class ImageService implements IImageService {
         }
         return savedImages;
     }
+    @Override
+        public ByteArrayResource getByteArrayResource(Image image) {
+        try {
+            ByteArrayResource resource = new ByteArrayResource(image.getImage().getBytes(1, (int) image.getImage().length()));
+            return resource;
+        } catch (SQLException e){
+            throw new RuntimeException("Error while downloading image from database");
+    }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

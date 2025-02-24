@@ -51,4 +51,12 @@ public class Cart {
         this.items.clear();
         updateTotalAmount();
     }
+
+    public boolean isEmpty() {
+        return (totalAmount == null || totalAmount.compareTo(BigDecimal.ZERO) == 0)
+                && (items == null || items.isEmpty())
+                && user == null;
+    }
+
+
 }

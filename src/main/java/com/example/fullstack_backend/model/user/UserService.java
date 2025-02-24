@@ -1,9 +1,7 @@
 package com.example.fullstack_backend.model.user;
 
-import com.example.fullstack_backend.model.cart.Cart;
 import com.example.fullstack_backend.model.cart.dtoResponse.CartDto;
 import com.example.fullstack_backend.model.cart.CartRepository;
-import com.example.fullstack_backend.model.order.Order;
 import com.example.fullstack_backend.model.order.OrderRepository;
 import com.example.fullstack_backend.model.order.dtoResponse.OrderDto;
 import com.example.fullstack_backend.model.user.dtoUserRequest.AddUserRequest;
@@ -13,11 +11,13 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,16 +26,9 @@ public class UserService implements IUserService {
     private final ModelMapper modelMapper;
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
-    private static User createUser(AddUserRequest request) {
-        User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        return user;
-    }
 
     @Override
     public User addUser(AddUserRequest addUserRequest) {
@@ -47,6 +40,15 @@ public class UserService implements IUserService {
                 }).orElseThrow(() -> new EntityExistsException("User already exists: " + addUserRequest.getEmail()));
 
     }
+    private User createUser(AddUserRequest request) {
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        return user;
+    }
+
 
     @Override
     public User updateUser(UpdateUserRequest userRequest, Long userId) {
@@ -78,12 +80,19 @@ public class UserService implements IUserService {
     @Override
     public UserResponseDto convertToDto(User user){
         UserResponseDto userDto = modelMapper.map(user, UserResponseDto.class);
-        List <Order> orders = orderRepository.findByUserId(user.getId());
-        List <OrderDto> ordersDto = orders.stream().map((element) -> modelMapper.map(element, OrderDto.class)).collect(Collectors.toList());
-        Cart cart = cartRepository.findByUserId(user.getId());
-        CartDto cartDto = modelMapper.map(cart, CartDto.class);
+        List<OrderDto> ordersDto = orderRepository.findByUserId(user.getId()).stream()
+                .map((element) -> modelMapper.map(element, OrderDto.class)).toList();
+        cartRepository.findByUserId(user.getId())
+                .filter(cart -> !cart.isEmpty())
+                .ifPresent(cart -> userDto.setCart(modelMapper.map(cart, CartDto.class)));
         userDto.setOrders(ordersDto);
-        userDto.setCart(cartDto);
         return userDto;
+    }
+    @Override
+    public User getAuthenticatedUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return Optional.ofNullable(userRepository.findByEmail(email))
+                .orElseThrow(()-> new EntityNotFoundException("Log in required!"));
     }
 }

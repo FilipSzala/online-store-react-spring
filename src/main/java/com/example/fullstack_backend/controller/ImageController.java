@@ -38,11 +38,13 @@ public class ImageController {
     @GetMapping("/{imageId}/attachment")
     public ResponseEntity<Resource> downloadImage (@PathVariable Long imageId) throws SQLException {
         Image image = imageService.getImageById(imageId);
-        ByteArrayResource resource = new ByteArrayResource(image.getImage().getBytes(1, (int) image.getImage().length()));
+        ByteArrayResource resource = imageService.getByteArrayResource(image);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(image.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + image.getFileName() + "\"").body(resource);
     }
+
+
 
     @PutMapping("/{imageId}")
     public ResponseEntity<ApiResponse> updateImage (@PathVariable Long imageId, @RequestBody MultipartFile file){

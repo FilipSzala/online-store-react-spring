@@ -26,7 +26,7 @@ public class CartService implements ICartService {
 
     @Override
     public Cart getCartByUserId(Long userId) {
-        return cartRepository.findByUserId(userId);
+        return cartRepository.findByUserId(userId).orElseGet(()->new Cart());
     }
 
     @Override
@@ -39,7 +39,7 @@ public class CartService implements ICartService {
 
     @Override
     public Cart initializeNewCartForUser(User user) {
-        return Optional.ofNullable(getCartByUserId(user.getId())).orElseGet(()->{
+        return Optional.ofNullable(user.getCart()).orElseGet(()->{
             Cart cart = new Cart();
             cart.setUser(user);
             return cartRepository.save(cart);
