@@ -5,14 +5,16 @@ import com.example.fullstack_backend.model.product.dtoRequest.UpdateProductReque
 import com.example.fullstack_backend.model.product.dtoRespone.ProductDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IProductService {
     Product addProduct(AddProductRequest product);
 
-    Product updateProduct(UpdateProductRequest product, Long productId);
+    Product updateInventoryInProduct(UpdateProductRequest product, Long productId);
 
     Product getProductById(Long productId);
+
+
+    Product updateInventoryInProduct(Product product, int quantity);
 
     void deleteProductById(Long productId);
 

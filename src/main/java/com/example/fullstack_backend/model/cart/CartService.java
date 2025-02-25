@@ -1,10 +1,11 @@
 package com.example.fullstack_backend.model.cart;
 
-import com.example.fullstack_backend.model.cart_item.ItemRepository;
+import com.example.fullstack_backend.model.cart_item.CartItemRepository;
 import com.example.fullstack_backend.model.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -14,7 +15,7 @@ import java.util.Optional;
 
 public class CartService implements ICartService {
     private final CartRepository cartRepository;
-    private final ItemRepository itemRepository;
+    private final CartItemRepository cartItemRepository;
     @Override
     public Cart getCart(Long cartId) {
         Cart cart = cartRepository.findById(cartId)
@@ -30,10 +31,10 @@ public class CartService implements ICartService {
     }
 
     @Override
+    @Transactional
     public void deleteCart(Long cartId) {
         Cart cart = getCart(cartId);
-        itemRepository.deleteAllByCartId(cartId);
-        cart.clearItems();
+        cartItemRepository.deleteAllByCartId(cartId);
         cartRepository.deleteById(cartId);
     }
 

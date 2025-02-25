@@ -36,6 +36,7 @@ public class ImageService implements IImageService {
 
     @Override
     public void updateImage(MultipartFile file, Long imageId) {
+        validateFileNotEmpty(file);
         Image image = getImageById(imageId);
         try {
             image.setFileName(file.getOriginalFilename());
@@ -47,12 +48,21 @@ public class ImageService implements IImageService {
         }
     }
 
+    private void validateFileNotEmpty(MultipartFile file) {
+        if(file.isEmpty()){
+            throw new IllegalArgumentException("Provided file is empty");
+        }
+    }
+
     @Override
     public List<ImageDto> saveImages(Long productId, List<MultipartFile> files) {
         Product product = productService.getProductById(productId);
         List<ImageDto> savedImages = new ArrayList<>();
 
         for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                continue;
+            }
             try {
                 Image image = new Image();
                 image.setFileName(file.getOriginalFilename());
@@ -62,6 +72,7 @@ public class ImageService implements IImageService {
 
 
                 Image savedImage = imageRepository.save(image);
+                //TODO: Change imageId in download url to UUID
                 String downloadUrl = "/api/v1/images/"+savedImage.getId()+"/attachment";
                 savedImage.setDownloadUrl(downloadUrl);
                 imageRepository.save(savedImage);
@@ -77,7 +88,7 @@ public class ImageService implements IImageService {
         }
         return savedImages;
     }
-    @Override
+        @Override
         public ByteArrayResource getByteArrayResource(Image image) {
         try {
             ByteArrayResource resource = new ByteArrayResource(image.getImage().getBytes(1, (int) image.getImage().length()));
@@ -86,36 +97,4 @@ public class ImageService implements IImageService {
             throw new RuntimeException("Error while downloading image from database");
     }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

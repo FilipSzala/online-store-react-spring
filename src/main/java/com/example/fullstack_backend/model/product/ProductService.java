@@ -1,10 +1,11 @@
 package com.example.fullstack_backend.model.product;
 
 import com.example.fullstack_backend.model.cart.Cart;
-import com.example.fullstack_backend.model.cart_item.Item;
-import com.example.fullstack_backend.model.cart_item.ItemRepository;
+import com.example.fullstack_backend.model.cart_item.CartItem;
+import com.example.fullstack_backend.model.cart_item.CartItemRepository;
 import com.example.fullstack_backend.model.category.Category;
 import com.example.fullstack_backend.model.category.CategoryRepository;
+import com.example.fullstack_backend.model.category.CategoryService;
 import com.example.fullstack_backend.model.image.Image;
 import com.example.fullstack_backend.model.image.ImageRepository;
 import com.example.fullstack_backend.model.image.dtoResponse.ImageDto;
@@ -18,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,26 +31,26 @@ public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final ItemRepository itemRepository;
+    private final CartItemRepository cartItemRepository;
     private final OrderItemRepository orderItemRepository;
     private final ModelMapper modelMapper;
     private final ImageRepository imageRepository;
+    private final CategoryService categoryService;
 
-    public boolean productExists(String name, String brand) {
-        return productRepository.existsByNameAndBrand(name, brand);
-    }
     @Override
+    @Transactional
     public Product addProduct(AddProductRequest request) {
         if (productExists(request.getName(), request.getBrand())) {
             throw new EntityExistsException(request.getName() + " already exists!");
         }
-        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
-                .orElseGet(() -> {
-                    Category newCategory = new Category(request.getCategory().getName());
-                    return categoryRepository.save(newCategory);
-                });
+        Category category = categoryService.getOrCreateCategory(request.getCategory().getName());
         request.setCategory(category);
         return productRepository.save(createProduct(request));
+    }
+
+
+    private boolean productExists(String name, String brand) {
+        return productRepository.existsByNameAndBrand(name, brand);
     }
 
 
@@ -65,10 +67,15 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product updateProduct(UpdateProductRequest request, Long productId) {
+    public Product updateInventoryInProduct(UpdateProductRequest request, Long productId) {
         return productRepository.findById(productId)
                 .map(existingProduct -> updateExistingProduct(existingProduct, request))
                 .map(productRepository::save).orElseThrow(()->new EntityNotFoundException("Product not found"));
+    }
+    @Override
+    public Product updateInventoryInProduct(Product product, int quantity) {
+        product.setInventory(product.getInventory()-quantity);
+        return productRepository.save(product);
     }
 
     private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request){
@@ -78,7 +85,7 @@ public class ProductService implements IProductService {
         existingProduct.setInventory(request.getInventory());
         existingProduct.setDescription(request.getDescription());
         //Todo:.
-        Category category = categoryRepository.findByName(request.getCategory().getName());
+        Category category = categoryService.findCategoryByName((request.getCategory().getName()));
         existingProduct.setCategory(category);
         return existingProduct;
     }
@@ -87,11 +94,11 @@ public class ProductService implements IProductService {
     public void deleteProductById(Long productId) {
         productRepository.findById(productId)
                 .ifPresentOrElse(product -> {
-                    List<Item> items = itemRepository.findByProductId(productId);
-                    items.forEach(cartItem ->{
+                    List<CartItem> cartItems = cartItemRepository.findByProductId(productId);
+                    cartItems.forEach(cartItem ->{
                         Cart cart = cartItem.getCart();
-                        cart.removeItem(cartItem);
-                        itemRepository.delete(cartItem);
+                        cart.removeCartItem(cartItem);
+                        cartItemRepository.delete(cartItem);
                     });
                     List<OrderItem> orderItems = orderItemRepository.findByProductId(productId);
                     orderItems.forEach(orderItem-> {

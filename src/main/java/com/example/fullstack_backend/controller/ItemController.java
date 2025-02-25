@@ -2,7 +2,7 @@ package com.example.fullstack_backend.controller;
 
 import com.example.fullstack_backend.model.cart.Cart;
 import com.example.fullstack_backend.model.cart.ICartService;
-import com.example.fullstack_backend.model.cart_item.IItemService;
+import com.example.fullstack_backend.model.cart_item.ICartItemService;
 import com.example.fullstack_backend.model.product.dtoRespone.ApiResponse;
 import com.example.fullstack_backend.model.user.IUserService;
 import com.example.fullstack_backend.model.user.User;
@@ -12,29 +12,29 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/items")
+@RequestMapping("${api.prefix}/cart-items")
 public class ItemController {
-    private final IItemService itemService;
+    private final ICartItemService itemService;
     private final IUserService userService;
     private final ICartService cartService;
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse> addItemToCart (@RequestParam Long productId, @RequestParam int quantity){
+    public ResponseEntity<ApiResponse> addCartItemToCart(@RequestParam Long productId, @RequestParam int quantity){
         User user = userService.getAuthenticatedUser();
         Cart cart = cartService.initializeNewCartForUser(user);
-        itemService.addItemToCart(cart.getId(),productId,quantity);
-        return ResponseEntity.ok(new ApiResponse("Item added successfully!", null));
+        itemService.addCartItemToCart(cart.getId(),productId,quantity);
+        return ResponseEntity.ok(new ApiResponse("CartItem added successfully!", null));
     }
 
-    @DeleteMapping("/{itemId}/cart/{cartId}")
-    public ResponseEntity<ApiResponse> deleteItemFromCart (@PathVariable Long cartId, @PathVariable Long itemId){
-        itemService.removeItemFromCart(cartId, itemId);
-        return ResponseEntity.ok(new ApiResponse("Item removed successfully!",null));
+    @DeleteMapping("/{cart-itemId}/cart/{cartId}")
+    public ResponseEntity<ApiResponse> deleteCartItemFromCart (@PathVariable Long cartId, @PathVariable Long cartItemId){
+        itemService.removeCartItemFromCart(cartId, cartItemId);
+        return ResponseEntity.ok(new ApiResponse("CartItem removed successfully!",null));
     }
 
-    @PutMapping("/{itemId}/cart/{cartId}")
-    public ResponseEntity<ApiResponse> updateItemInCart (@PathVariable Long cartId,@PathVariable Long itemId, @RequestParam int quantity){
-        itemService.updateItemQuantity(cartId, itemId, quantity);
-        return ResponseEntity.ok(new ApiResponse("Item updated successfully", null));
+    @PutMapping("/{cart-itemId}/cart/{cartId}")
+    public ResponseEntity<ApiResponse> updateCartItemInCart (@PathVariable Long cartId,@PathVariable Long cartItemId, @RequestParam int quantity){
+        itemService.updateCartItemQuantity(cartId, cartItemId, quantity);
+        return ResponseEntity.ok(new ApiResponse("CartItem updated successfully", null));
     }
 }

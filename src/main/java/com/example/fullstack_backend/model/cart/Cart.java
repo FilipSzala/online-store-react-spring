@@ -1,6 +1,6 @@
 package com.example.fullstack_backend.model.cart;
 
-import com.example.fullstack_backend.model.cart_item.Item;
+import com.example.fullstack_backend.model.cart_item.CartItem;
 import com.example.fullstack_backend.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -27,34 +27,33 @@ public class Cart {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private Set<Item> items = new HashSet<>();
+    private Set<CartItem> cartItems = new HashSet<>();
 
     public Cart() {
     }
 
-    public void removeItem(Item item) {
-       this.items.remove(item);
-       item.setCart(null);
+    public void removeCartItem(CartItem cartItem) {
+       this.cartItems.remove(cartItem);
+       cartItem.setCart(null);
        updateTotalAmount();
     }
 
     private void updateTotalAmount() {
-        this.totalAmount = items.stream().map(item -> item.getTotalPrice()).reduce(BigDecimal.ZERO,BigDecimal::add);
+        this.totalAmount = cartItems.stream().map(item -> item.getTotalPrice()).reduce(BigDecimal.ZERO,BigDecimal::add);
     }
 
-    public void addItem(Item item) {
-        this.items.add(item);
+    public void addItem(CartItem cartItem) {
+        this.cartItems.add(cartItem);
         updateTotalAmount();
     }
 
-    public void clearItems() {
-        this.items.clear();
-        updateTotalAmount();
+    public void clearCartItems() {
+        this.cartItems.clear();
     }
 
     public boolean isEmpty() {
         return (totalAmount == null || totalAmount.compareTo(BigDecimal.ZERO) == 0)
-                && (items == null || items.isEmpty())
+                && (cartItems == null || cartItems.isEmpty())
                 && user == null;
     }
 

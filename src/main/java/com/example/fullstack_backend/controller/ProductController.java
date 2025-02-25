@@ -65,7 +65,7 @@ public class ProductController {
 
     @PutMapping("/{productId}")
     public ResponseEntity<ApiResponse> updateProduct(@RequestBody UpdateProductRequest updateProductRequest, @PathVariable Long productId) {
-            Product product = productService.updateProduct(updateProductRequest, productId);
+            Product product = productService.updateInventoryInProduct(updateProductRequest, productId);
             ProductDto productDto = productService.convertToDto(product);
             return ResponseEntity.ok(new ApiResponse("Product updated :", productDto));
     }

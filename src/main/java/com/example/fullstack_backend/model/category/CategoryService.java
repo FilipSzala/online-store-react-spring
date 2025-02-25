@@ -17,23 +17,21 @@ public class CategoryService implements ICategoryService {
     @Override
     public Category addCategory(Category category) {
         return Optional.of(category)
-                .filter(c ->!categoryRepository.existsByName(c.getName()))
+                .filter(c -> !categoryRepository.existsByName(c.getName()))
                 .map(categoryRepository::save)
-                .orElseThrow(()->new EntityExistsException(category.getName() +" already exist"));
+                .orElseThrow(() -> new EntityExistsException(category.getName() + " already exist"));
     }
 
     @Override
     public Category updateCategory(Category category, Long categoryId) {
-        return Optional.ofNullable(findCategoryById(categoryId)).map(oldCategory -> {
-                    oldCategory.setName(category.getName());
-                    return categoryRepository.save(oldCategory);
-                }
-        ).orElseThrow(() -> new EntityNotFoundException("Category not found"));
-
+        Category oldCategory = findCategoryById(categoryId);
+        oldCategory.setName(category.getName());
+        categoryRepository.save(oldCategory);
+        return oldCategory;
     }
 
     @Override
-    public void deleteCategoryId(Long categoryId) {
+    public void deleteCategoryById(Long categoryId) {
         categoryRepository.findById(categoryId).ifPresentOrElse(categoryRepository::delete, () -> {
                     throw new EntityNotFoundException("Category not found");
                 }
@@ -47,11 +45,21 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public Category findCategoryByName(String name) {
-        return categoryRepository.findByName(name);
+        return categoryRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Category not found!"));
     }
 
     @Override
     public Category findCategoryById(Long categoryId) {
-        return categoryRepository.findById(categoryId).orElseThrow(() -> new EntityNotFoundException("Category not found!"));
+        return categoryRepository.findById(categoryId).
+                orElseThrow(() -> new EntityNotFoundException("Category not found!"));
+    }
+
+    public Category getOrCreateCategory(String name) {
+        Category category = categoryRepository.findByName(name).orElseGet(
+                () -> {
+                    Category newCategory = new Category(name);
+                    return categoryRepository.save(newCategory);
+                });
+        return category;
     }
 }

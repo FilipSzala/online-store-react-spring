@@ -14,5 +14,5 @@ public interface IImageService {
     void updateImage(MultipartFile file,Long imageId);
     List<ImageDto> saveImages(Long productId, List<MultipartFile> files);
 
-    ByteArrayResource getByteArrayResource(Image image) throws SQLException;
+    ByteArrayResource getByteArrayResource(Image image);
 }
