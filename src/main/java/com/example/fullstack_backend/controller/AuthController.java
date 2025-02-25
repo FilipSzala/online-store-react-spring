@@ -46,11 +46,16 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
-        cookieUtils.logCookies(request);
         String refreshToken = cookieUtils.getRefreshTokenFromCookies(request);
-        if (refreshToken != null) {
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No refresh token provided");
+        }
+        cookieUtils.logCookies(request);
             boolean isValid = jwtUtils.validateToken(refreshToken);
-            if (isValid) {
+            if (!isValid) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid or expired refresh token");
+            }
+
                 String usernameFromToken = jwtUtils.getUsernameFromToken(refreshToken);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
                 String newAccessToken = jwtUtils.generateAccessTokenForUser(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
@@ -61,8 +66,5 @@ public class AuthController {
                 } else {
                     return ResponseEntity.status(500).body("Error generating new access token");
                 }
-            }
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid of expired access token");
     }
 }

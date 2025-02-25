@@ -30,7 +30,7 @@ public interface IProductService {
 
     List<Product> getProductsByBrand(String brand);
 
-    List<ProductDto> getCovertedProducts(List<Product> products);
+    List<ProductDto> getConvertedProducts(List<Product> products);
 
     ProductDto convertToDto(Product product);
 }

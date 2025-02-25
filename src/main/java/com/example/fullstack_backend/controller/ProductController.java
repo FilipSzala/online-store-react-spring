@@ -24,7 +24,7 @@ public class ProductController {
     @GetMapping("")
     public ResponseEntity<ApiResponse> getAllProducts() {
         List<Product> products = productService.getAllProducts();
-        List<ProductDto> convertedProducts = productService.getCovertedProducts(products);
+        List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
         return ResponseEntity.ok(new ApiResponse("Found :", convertedProducts));
     }
 
@@ -38,21 +38,21 @@ public class ProductController {
     @GetMapping("/by/brand-and-name")
     public ResponseEntity<ApiResponse> getProductsByBrandAndName(@RequestParam String name, @RequestParam String brand) {
             List<Product> product = productService.getProductsByBrandAndName(brand, name);
-            List<ProductDto> productDtos = productService.getCovertedProducts(product);
+            List<ProductDto> productDtos = productService.getConvertedProducts(product);
             return ResponseEntity.ok(new ApiResponse("Products :", productDtos));
     }
 
     @GetMapping("/by/category-and-brand")
     public ResponseEntity<ApiResponse> getProductsByCategoryNameAndBrand(@RequestParam String categoryName, @RequestParam String brand) {
             List<Product> products = productService.getProductsByCategoryAndBrand(categoryName, brand);
-            List<ProductDto> productDtos = productService.getCovertedProducts(products);
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
             return ResponseEntity.ok(new ApiResponse("Products :", productDtos));
     }
 
     @GetMapping("/by/name")
     public ResponseEntity<ApiResponse> getProductByName (@RequestParam String name){
         List<Product> products = productService.getProductsByName(name);
-        List<ProductDto> productDtos = productService.getCovertedProducts(products);
+        List<ProductDto> productDtos = productService.getConvertedProducts(products);
         return ResponseEntity.ok(new ApiResponse("Produtcs :",productDtos));
     }
 

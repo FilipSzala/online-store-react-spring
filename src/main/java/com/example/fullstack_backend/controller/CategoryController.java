@@ -22,61 +22,36 @@ public class CategoryController {
 
     @GetMapping("")
     public ResponseEntity<ApiResponse> getAllCategories() {
-        try {
             List<Category> categories = categoryService.getAllCategories();
             return ResponseEntity.ok(new ApiResponse("Found", categories));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error :", e.getMessage()));
-        }
     }
 
     @PostMapping("")
     public ResponseEntity<ApiResponse> addCategory(@RequestBody Category category) {
-        try {
             Category savedCategory = categoryService.addCategory(category);
             return ResponseEntity.ok(new ApiResponse("Success", savedCategory));
-        } catch (EntityExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse("Error :", e.getMessage()));
-        }
     }
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long id){
-        try {
             Category category = categoryService.findCategoryById(id);
             return ResponseEntity.ok(new ApiResponse("Found", category));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Error :", e.getMessage()));
-        }
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteCategory (@PathVariable Long id){
-        try {
             categoryService.deleteCategoryById(id);
-            return ResponseEntity.ok(new ApiResponse("Deleted", null));
-        } catch (EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
-        }
+            return ResponseEntity.noContent().build();
     }
 
     @PutMapping ("/{id}")
     public ResponseEntity<ApiResponse> updateCategory (@PathVariable Long id, @RequestBody Category category){
-        try {
             Category updatedCategory = categoryService.updateCategory(category, id);
             return ResponseEntity.ok(new ApiResponse("Update success!", updatedCategory));
-        } catch (EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
-        }
     }
 
     @GetMapping("/{name}/")
     public ResponseEntity<ApiResponse> getCategoryByName (@PathVariable String name){
-        try {
             Category category = categoryService.findCategoryByName(name);
             return ResponseEntity.ok(new ApiResponse("Found", category));
-        } catch (EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Error :", e.getMessage()));
-        }
-
     }
 
 

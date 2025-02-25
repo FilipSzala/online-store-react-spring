@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,38 +41,39 @@ public class ProductService implements IProductService {
     @Override
     @Transactional
     public Product addProduct(AddProductRequest request) {
-        if (productExists(request.getName(), request.getBrand())) {
-            throw new EntityExistsException(request.getName() + " already exists!");
-        }
+        throwExceptionIfProductExist(request.getName(), request.getBrand());
         Category category = categoryService.getOrCreateCategory(request.getCategory().getName());
         request.setCategory(category);
         return productRepository.save(createProduct(request));
     }
 
-
-    private boolean productExists(String name, String brand) {
-        return productRepository.existsByNameAndBrand(name, brand);
+    private void throwExceptionIfProductExist(String name, String brand) {
+        if (productRepository.existsByNameAndBrand(name, brand)) {
+            throw new EntityExistsException(name + " already exists!");
+        }
     }
 
 
-
     private Product createProduct(AddProductRequest request) {
-        return new Product(
-                request.getName(),
-                request.getBrand(),
-                request.getPrice(),
-                request.getInventory(),
-                request.getDescription(),
-                request.getCategory()
-        );
+        if (AddProductRequest.hasEmptyFields(request)){
+            throw new IllegalStateException("Request can't have empty fields");
+        };
+        return Product.builder()
+                .name(request.getName())
+                .brand(request.getBrand())
+                .price(request.getPrice())
+                .inventory(request.getInventory())
+                .description(request.getDescription())
+                .category(request.getCategory())
+                .build();
     }
 
     @Override
     public Product updateInventoryInProduct(UpdateProductRequest request, Long productId) {
-        return productRepository.findById(productId)
-                .map(existingProduct -> updateExistingProduct(existingProduct, request))
-                .map(productRepository::save).orElseThrow(()->new EntityNotFoundException("Product not found"));
+        Product existingProduct = getProductById(productId);
+        return productRepository.save(updateExistingProduct(existingProduct, request));
     }
+
     @Override
     public Product updateInventoryInProduct(Product product, int quantity) {
         product.setInventory(product.getInventory()-quantity);
@@ -79,18 +81,19 @@ public class ProductService implements IProductService {
     }
 
     private Product updateExistingProduct(Product existingProduct, UpdateProductRequest request){
+        UpdateProductRequest.validateUpdateRequest(request);
         existingProduct.setName(request.getName());
         existingProduct.setBrand(request.getBrand());
         existingProduct.setPrice(request.getPrice());
         existingProduct.setInventory(request.getInventory());
         existingProduct.setDescription(request.getDescription());
-        //Todo:.
         Category category = categoryService.findCategoryByName((request.getCategory().getName()));
         existingProduct.setCategory(category);
         return existingProduct;
     }
 
     @Override
+    @Transactional
     public void deleteProductById(Long productId) {
         productRepository.findById(productId)
                 .ifPresentOrElse(product -> {
@@ -127,12 +130,12 @@ public class ProductService implements IProductService {
 
     @Override
     public List<Product> getProductsByCategory(String categoryName) {
-        return productRepository.findByCategory_Name(categoryName);
+        return productRepository.findByCategoryName(categoryName);
     }
 
     @Override
     public List<Product> getProductsByCategoryAndBrand(String categoryName, String brand) {
-        return productRepository.findByCategory_NameAndBrand(categoryName, brand);
+        return productRepository.findByCategoryNameAndBrand(categoryName, brand);
     }
 
     @Override
@@ -151,7 +154,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List <ProductDto> getCovertedProducts(List<Product> products){
+    public List <ProductDto> getConvertedProducts(List<Product> products){
         return products.stream().map(this::convertToDto).toList();
     }
     @Override

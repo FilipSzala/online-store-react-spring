@@ -28,18 +28,15 @@ public class UserService implements IUserService {
     private final CartRepository cartRepository;
     private final PasswordEncoder passwordEncoder;
 
-
-
     @Override
     public User addUser(AddUserRequest addUserRequest) {
-        return Optional.of(addUserRequest).filter(ignored -> !userRepository
-                        .existsByEmail(addUserRequest.getEmail()))
-                .map(userRequest -> {
-                    User user = createUser(userRequest);
-                    return userRepository.save(user);
-                }).orElseThrow(() -> new EntityExistsException("User already exists: " + addUserRequest.getEmail()));
-
+        if (userRepository.existsByEmail(addUserRequest.getEmail())) {
+            throw new EntityExistsException("User already exists: " + addUserRequest.getEmail());
+        }
+        User user = createUser(addUserRequest);
+        return userRepository.save(user);
     }
+
     private User createUser(AddUserRequest request) {
         User user = new User();
         user.setFirstName(request.getFirstName());
@@ -52,11 +49,10 @@ public class UserService implements IUserService {
 
     @Override
     public User updateUser(UpdateUserRequest userRequest, Long userId) {
-        return userRepository.findById(userId).map(user -> {
+        User user =  getUserById(userId);
             user.setFirstName(userRequest.getFirstName());
             user.setLastName(userRequest.getLastName());
             return userRepository.save(user);
-        }).orElseThrow(() -> new EntityNotFoundException("User not found!"));
     }
 
     @Override
@@ -67,10 +63,7 @@ public class UserService implements IUserService {
 
     @Override
     public void deleteUser(Long userId) {
-        userRepository.findById(userId)
-                .ifPresentOrElse(userRepository::delete, () -> {
-                    throw new EntityNotFoundException("User not found");
-                });
+        userRepository.delete(getUserById(userId));
     }
     @Override
     public List<UserResponseDto> convertUsersToUserDto (List<User> users){

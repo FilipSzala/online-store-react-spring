@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 @Component
@@ -13,6 +15,8 @@ import java.util.Arrays;
 public class CookieUtils {
     @Value ("${app.useSecureCookie}")
     private boolean useSecureCookie;
+    private static final Logger logger = LoggerFactory.getLogger(CookieUtils.class);
+
 
     public void addRefreshTokenCookie(HttpServletResponse response, String refreshToken, long maxAge) {
         if (response == null) {
@@ -56,11 +60,11 @@ public class CookieUtils {
 
     public void logCookies(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        System.out.println("Cookies: " + (cookies != null ? Arrays.toString(cookies) : "null"));
+        logger.info("Cookies: {}", cookies != null ? Arrays.toString(cookies) : "null");
 
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                System.out.println("Cookie name: " + cookie.getName() + ", value: " + cookie.getValue());
+                logger.info("Cookie name: {}, value: {}", cookie.getName(), cookie.getValue());
             }
         }
     }

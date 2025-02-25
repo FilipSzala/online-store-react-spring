@@ -2,11 +2,14 @@ package com.example.fullstack_backend.security.jwt;
 
 import com.example.fullstack_backend.security.ShopUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,19 +41,31 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                         var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(auth);
                     });
+        }  catch (ExpiredJwtException e) {
+            logger.error("Expired JWT token: {}", e);
+            sendErrorResponse(response, "Expired access token, please log in again.", HttpServletResponse.SC_FORBIDDEN);
+            return;
+        } catch (SecurityException e) {
+            logger.error("Invalid JWT signature: {}", e);
+            sendErrorResponse(response, "Invalid access token signature.", HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        } catch (JwtException e) {
+            logger.error("Invalid JWT token: {}", e);
+            sendErrorResponse(response, "Invalid access token, please log in again.", HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         } catch (Exception e) {
-            logger.error("Error JWT: {}" + e.getMessage(), e);
-            sendErrorResponse(response);
+            logger.error("Error processing JWT token: {}", e);
+            sendErrorResponse(response, "Could not process authentication token.", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         }
         filterChain.doFilter(request, response);
 
     }
 
-    private void sendErrorResponse(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    private void sendErrorResponse(HttpServletResponse response, String exceptionMessage, int status) throws IOException {
+        response.setStatus(status);
         response.setContentType("application/json");
-        ErrorResponse errorResponse = new ErrorResponse("Invalid access token, please log in and try again");
+        ErrorResponse errorResponse = new ErrorResponse(exceptionMessage);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRespone = objectMapper.writeValueAsString(errorResponse);
         response.getWriter().write(jsonRespone);
