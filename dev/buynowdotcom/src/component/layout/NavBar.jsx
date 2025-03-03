@@ -6,10 +6,9 @@ const NavBar = () => {
         <Navbar expand='lg' sticky='top' className='nav-bg'>
          <Container>
             <Navbar.Brand to={"/"} as={Link}>
-              <span className='shop-home'>buyNow.com</span>
+              <span className='shop-home'>Sklep sam raz w czas</span>
              </Navbar.Brand>
                   
-    
             <Navbar.Toggle />
     
             <Navbar.Collapse>

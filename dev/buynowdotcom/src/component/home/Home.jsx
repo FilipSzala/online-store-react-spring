@@ -1,9 +1,10 @@
 import React from 'react'
+import Hero from "../hero/Hero"
 
 const Home = () => {
   return (
     <div>
-        <h1>Walcome to mediamate.com</h1>
+        <Hero></Hero>
     </div>
   )
 }

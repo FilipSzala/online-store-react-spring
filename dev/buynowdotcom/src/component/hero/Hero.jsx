@@ -1,15 +1,22 @@
-import React from 'react'
+import React, {useState} from 'react'
+import HeroSlider from './HeroSlider';
+import SearchBar from '../common/SearchBar';
 
 const Hero = () => {
+  const [currentSlide]= useState(0);
   return (
-    <div className='Hero'>
-        <div className='hero-content'>
-            <h1>
-                Welcome to <span className='text-primary'> mediamate</span>.com
-            </h1>
-            <div className = "home-button-conatiner">
-                <a href="#" className="home-shop-button link">
 
+    <div className='hero'>
+      <HeroSlider />
+  <div className='hero-content'>
+            <h1>
+                Witamy w sklepie <span className='text-primary'> samrazwczas</span>
+                <SearchBar/>
+            </h1>
+
+            <div className = "home-button-container">
+                <a href="#" className="home-shop-button link">
+                  Shop now 
                 </a>
                 <button className="deals-button">Today's Deal</button>
             </div>
