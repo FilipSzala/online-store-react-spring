@@ -1,8 +1,12 @@
 import React, {useState} from 'react'
 import HeroSlider from './HeroSlider';
-import SearchBar from '../common/SearchBar';
+import SearchBar from '../search/SearchBar';
+import { setSearchQuery } from '../../store/features/searchSlice';
+import { useDispatch } from 'react-redux';
 
 const Hero = () => {
+  const dispatch = useDispatch();
+
   const [currentSlide]= useState(0);
   return (
 
@@ -11,7 +15,7 @@ const Hero = () => {
   <div className='hero-content'>
             <h1>
                 Witamy w sklepie <span className='text-primary'> samrazwczas</span>
-                <SearchBar/>
+                <SearchBar onChange={(e)=> dispatch(setSearchQuery(e.target.value))}/>
             </h1>
 
             <div className = "home-button-container">

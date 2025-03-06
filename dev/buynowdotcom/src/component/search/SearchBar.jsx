@@ -1,6 +1,6 @@
 import React from 'react'
 
-const SearchBar = () => {
+const SearchBar = ({value, onChange}) => {
     return (
         <div className='search-bar'>
             <select className="form-control-sm" name="category">
@@ -11,6 +11,8 @@ const SearchBar = () => {
 
             <input
                 type="text"
+                value={value}
+                onChange={onChange}
                 className="form-control-sm"
                 name="search"
                 placeholder="Search..."

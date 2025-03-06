@@ -67,6 +67,15 @@
 
 }
 
+.custom-card-body 
+{
+    background: #FAFAFA;
+    border-radius: 10px;
+    
+}
+
+
+
 .home-product-card
 {
     width: calc(18% - 30px);
@@ -112,20 +121,17 @@
 .image-container
 {
     width: 100%;
-    height: 150px;
+    height: 230px;
     overflow: hidden;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.image-container img
-{
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px 5px 10px 10px;
-    height: 150px;
-    object-fit: cover;
+.image-container img {
+    height: 210px;
+    width: 190px;
 
 }
 
@@ -159,12 +165,27 @@
     color: #3c3a39;
     font-size: 20px;
 }
-
-.price
+.price-container 
 {
+    display: flex;
+    align-items: baseline;
+}
+
+.price-main
+{
+    margin-top: 10px;
+
     color: #151212;
-    font-style: normal;
-    font-weight: lighter;
+    font-style: italic;
+    font-size: 21px;
+    font-weight: 600;
+}
+.price-rest 
+{
+    font-style: italic;
+    font-size: 15px;
+    font-weight: 450;
+    justify-content: flex-end;
 }
 
 /* HeroSlider.css */
@@ -199,13 +220,16 @@
 .product-name
 {
     font-size: 22px;
+    font-weight: 1;
     margin: 0;
 }
 
 .product-description
 {
-    margin: 10px 0;
-    color: rgb(69, 96, 75);
+    margin: 0px;
+    font-size: 20px;
+    font-weight: 600;
+    color: rgb(19, 20, 19);
 }
 
 .rating
@@ -355,20 +379,28 @@
 {
     padding: 5px 10px;
     font-size: 12px;
+    font-weight: 700;
     text-decoration: none;
+    width: 30%;
+    display: flex;
     border: none;
     border-radius: 4px;
-    background-color: var(--dark-background);
+    background-color: var(--search-button-color);
+    justify-content: center;
+    align-items: center;
     color: white;
     border-radius: 50px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
-
-.shop-now-button:hover
+.shop-now-button p
 {
-    background-color: var(--search-button-color)
-        /* Darker shade on hover */
+    margin-bottom: 0px;
+}
+.shop-now
+{
+    justify-content: center;
+    display: flex;
 }
 
 /* End Buttons */
@@ -582,4 +614,11 @@
     --nav-background: #f1f0f0;
 
     /* Default color */
+}
+
+.all-card 
+{
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
